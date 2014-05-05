@@ -45,6 +45,27 @@ describe('popover', function() {
     expect( elmScope.tt_isOpen ).toBe( false );
   }));
 
+  it('should open on isOpen change', inject(function($compile, $timeout) {
+    scope.popIsOpen = false;
+
+    // Localize our tests to a specific element
+    var elmBody = $compile( angular.element(
+      '<div><span popover="popover text" popover-is-open="{{ popIsOpen }}">Selector Text</span></div>'
+    ) )( scope );
+    scope.$apply();
+
+    var elm = elmBody.find('span');
+    var elmScope = elm.scope();
+
+    expect( elmScope.tt_isOpen ).toBe( false );
+
+    scope.popIsOpen = true;
+    scope.$apply();
+
+    expect( elmScope.tt_isOpen ).toBe( true );
+
+  }));
+
   it('should not unbind event handlers created by other directives - issue 456', inject( function( $compile ) {
 
     scope.click = function() {

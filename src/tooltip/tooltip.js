@@ -198,7 +198,13 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
 
               // And show the tooltip.
               scope.tt_isOpen = true;
-              scope.$digest(); // digest required as $apply is not called
+
+              // Check to see if we're being called from an $observe call
+              if (!scope.$$phase) {
+
+                // digest required as $apply is not called
+                scope.$digest();
+              }
 
               // Return positioning function as promise callback for correct
               // positioning after draw.
@@ -234,7 +240,9 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               tooltip = tooltipLinker(scope, function () {});
 
               // Get contents rendered into the tooltip
-              scope.$digest();
+              if (!scope.$$phase) {
+                scope.$digest();
+              }
             }
 
             function removeTooltip() {
@@ -304,6 +312,17 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               }
             });
             }
+
+            attrs.$observe( prefix+'IsOpen', function ( val ) {
+              var isOpen = angular.isDefined( val ) ? $parse( val )( scope ) : false;
+
+              // show and hide will set tt_isOpen for us
+              if (isOpen) {
+                show();
+              } else {
+                hide();
+              }
+            });
 
             // Make sure tooltip is destroyed and removed.
             scope.$on('$destroy', function onDestroyTooltip() {
